@@ -10,4 +10,15 @@ public class VendorTest {
         vendor.addMoney(50);
         assertEquals(50, vendor.getBalance());
     }
+
+    //test to validate that you can buy an item from a vendor
+    @Test
+    void buyItem() {
+        vendor.addMoney(10);
+        vendor.stockVendor("Gum", 50, .5);
+        vendor.select("Gum");
+
+        assertEquals(49, vendor.getStock("Gum"));
+        assertEquals(9.5, vendor.getBalance());
+    }
 }

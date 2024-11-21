@@ -102,5 +102,14 @@ class Vendor {
             System.out.println("Amount: "+item.stock);
         });
     }
+
+    int getStock(String itemName){
+        if (Stock.containsKey(itemName)) {
+            return Stock.get(itemName).stock;
+        } else {
+            System.out.println("Sorry, don't know that item");
+            return 0;
+        }
+    }
 }
 
