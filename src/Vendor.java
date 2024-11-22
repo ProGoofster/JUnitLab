@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -38,7 +39,7 @@ class Vendor {
             stockVendor(name, count, -1);
             return;
         }
-        System.out.println("Please specify a price when");
+        System.out.println("Please specify a valid item to restock");
     }
 
     void changeItemName(String currentName, String newName) {
@@ -71,7 +72,10 @@ class Vendor {
      * @param amt how much money to add
      */
     void addMoney(double amt) {
-        this.balance = this.balance + amt;
+        if(amt < 0) return;
+        double newBalance = this.balance + amt;
+        if(newBalance < 0) return;
+        this.balance = newBalance;
     }
 
     /**
@@ -80,27 +84,61 @@ class Vendor {
      *
      * @param name The name of the item to purchase ("Candy" or "Gum")
      */
-    void select(String name) {
-        if (Stock.containsKey(name)) {
-            Item item = Stock.get(name);
-            if (balance >= item.price) {
-                item.purchase(1);
-                this.balance = this.balance - item.price;
-            } else
-                System.out.println("Gimme more money");
-        } else System.out.println("Sorry, don't know that item");
+    void select(String name, int amount) {
+        selectWithDiscount(name, amount, 100);
     }
 
-    void restock() {
-
+    void select(String name){
+        select(name, 1);
     }
 
     void printStock() {
         Stock.forEach((name, item) -> {
-            System.out.println("Item: "+name);
-            System.out.println("Price: "+item.price);
-            System.out.println("Amount: "+item.stock);
+            getItemInfo(name);
         });
+    }
+
+    int getStock(String itemName){
+        if (Stock.containsKey(itemName)) {
+            return Stock.get(itemName).stock;
+        } else {
+            System.out.println("Sorry, don't know that item");
+            return 0;
+        }
+    }
+
+    //As a User, I would like to check an item’s description or details before purchasing, so I
+    //can make informed choices on item benefits and uses.
+    void getItemInfo(String name){
+        Item item = Stock.get(name);
+        System.out.println("\nItem: " + name + "\nPrice: " + item.price + "\nStock: " + item.stock + "\nLifetime Sales: " + item.sales );
+        if(item.bestSeller) System.out.println("This item is a bestseller!");
+    }
+
+
+    //As a User, I would like to apply discounts to specific items or categories within the vendor’s
+    //inventory, allowing for seasonal sales or promotions.
+    void selectWithDiscount(String name, int amount, float discount){
+        if(discount < 0 | discount > 100) {
+            System.out.println("please select a valid discount");
+            return;
+        }
+        if (Stock.containsKey(name)) {
+            Item item = Stock.get(name);
+            if (balance < item.price) {
+                System.out.println("Gimme more money");
+                return;
+            }
+            item.purchase(amount);
+            this.balance = this.balance - ((item.price * discount)/100);
+
+            //As a User, I would like to remove an item from the vendor’s inventory if it is discontinued
+            //or no longer available.
+            if (item.stock < 1){
+                Stock.remove(name);
+            }
+        } else System.out.println("Sorry, don't know that item");
+
     }
 }
 
